@@ -1,10 +1,13 @@
+require 'erb'
+
 target_path="target/thumbv7m-none-eabi/debug/examples/"
 container_name = "qemu_container"
 monitor_port="1111"
 serial_port="2222"
 gdb_port="3333"
-machines=["stm32-p103", "stm32-f103c8", "lm3s6965evb"]
-machine=machines[2]
+machines=["stm32-p103", "stm32-f103c8", "lm3s6965evb", "stm32-l152rb"]
+machine=machines[3]
+pretty_machine=machine.upcase().delete('-')
 
 desc "Build an example"
 task :build, [:example] do |t, args|
@@ -39,6 +42,21 @@ desc "Help!"
 task :help do
     puts "\nFind the list of tasks to perform with `$ rake -T`, such as this help!"
     puts "Examples are located in folder examples:\n#{`ls examples`}"
+end
+
+desc "Create memory.x file based on machine"
+task :memory, [:machine] do |t, args|
+   puts "Autogenerating memory.x for #{pretty_machine} (note the machine option does nothing for now)"
+   DATE_TIME = Time.now()
+   MACHINE_NAME = pretty_machine
+   FLASH_START_ADDR_HEX = "0x8000000"
+   FLASH_LEN_K = "128K"
+   RAM_START_ADDR_HEX = "0x20000000"
+   RAM_LEN_K = "16K"
+   template = ERB.new File.read("memory.x.erb"), nil, "%"
+   file = File.open("memory.x", "w")
+   file << template.result(binding)
+   file.close()
 end
 
 task :default => :help
