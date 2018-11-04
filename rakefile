@@ -10,7 +10,7 @@ machine=machines[3]
 pretty_machine=machine.upcase().delete('-')
 
 desc "Build an example"
-task :build, [:example] do |t, args|
+task :build, [:example] => :memory do |t, args|
     system("cargo build --example #{args[:example]}")
 end
 
