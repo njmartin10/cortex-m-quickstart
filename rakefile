@@ -1,0 +1,18 @@
+target_path="target/thumbv7m-none-eabi/debug/examples/"
+
+desc "Build and run with QEMU"
+task :qemu, [:example] do |t, args|
+    system("cargo build --example #{args[:example]}")
+    system("qemu-system-arm -cpu cortex-m3 -machine lm3s6965evb -nographic -semihosting-config enable=on,target=native -gdb tcp::3333 -S -kernel #{target_path + args[:example]}")
+end
+
+desc "Debug remote target"
+task :gdb, [:example] do |t, args|
+    system("arm-none-eabi-gdb #{target_path + args[:example]} -q -x openocd.gdb")
+end
+
+desc "Help!"
+task :help do
+    puts "\nFind the list of tasks to perform with `$ rake -T`, such as this help!"
+    puts "Examples are located in folder examples:\n#{`ls examples`}"
+end
